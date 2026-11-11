@@ -63,3 +63,7 @@ ioctl = 0x003136B0 if sys.platform == "win32" else 0x42000D48
 connection.control(ioctl, SET_BUZZER_OFF_APDU)
 ```
 The warnings disappeared, but the initial beep, when the card is first placed near the reader remained.
+
+## End result
+
+After playing with the code some more, I got attempt 1 to work - there was still a beep on initial card detection, but future cards were silent. I ended up solving this with a different approach: keep the initial beep and issue a second beep when the card is read. So a double beep is a signal to the runner that they can take off.
