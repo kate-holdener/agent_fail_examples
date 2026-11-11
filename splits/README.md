@@ -1,8 +1,9 @@
 # Disable beep when ACR122U NFC reader detects a tag
 
+## Overview
 Repo: https://github.com/kate-holdener/splits
 
-Overview: The software integrates with NFC reader hardware (ACR122U) and RFID scanner to monitor athletes' interval training, as they are running on the track. The NFC reader is used to detect the start time - an athlete scans their NFC tag before running off. By default NFC reader issues a beep as soon as the tag is close enough to the reader to be read, but BEFORE the software reads the tag. This is a problem, because the athlete hears a beep and wants to take off, but their tag has not yet been read.
+The software integrates with NFC reader hardware (ACR122U) and RFID scanner to monitor athletes' interval training, as they are running on the track. The NFC reader is used to detect the start time - an athlete scans their NFC tag before running off. By default NFC reader issues a beep as soon as the tag is close enough to the reader to be read, but BEFORE the software reads the tag. This is a problem, because the athlete hears a beep and wants to take off, but their tag has not yet been read.
 
 Module: https://github.com/kate-holdener/splits/blob/main/src/readers/acr122u_nfc.py
 
@@ -10,7 +11,9 @@ Agent: Claude Code
 
 Model: Sonnet 4.6
 
-Failed attempt 1: Defined two signals to send to the NFC Reader:
+## Failed attempt 1
+
+Defined two signals to send to the NFC Reader:
 ```
 SET_BUZZER_OFF_APDU = [0xFF, 0x00, 0x52, 0x00, 0x00]
 BEEP_APDU = [0xFF, 0x00, 0x40, 0x00, 0x04, 0x01, 0x01, 0x01, 0x01]
@@ -18,7 +21,10 @@ BEEP_APDU = [0xFF, 0x00, 0x40, 0x00, 0x04, 0x01, 0x01, 0x01, 0x01]
 
 On each tag connection, in `_TagOvserver::update`, after tag connection is established, the `SET_BUZZER_OFF_APDU` is sent to the tag, then the tag is read, then `BEEP_APDU` is sent to the tag. However, at this point, the tag connection is already established and the initial beeh had already happened. The agent claimed that we would still hear a pre-read beep on the first tag, but not on sugsequent tags. However, this claim was false, and every tag ended up issuing two beeps - one when the card was placed near the reader and the second one when the software read the card (because we now send `BEEP_APDU` pre-read beep on the first tag, but not on sugsequent tags. However, this claim was false, and every tag ended up issuing two beeps - one when the card was placed near the reader and the second one when the software read the card (because we now send `BEEP_APDU` when the card is read).
 
-Failed attempt 2: After pointing out that attempt 1 did not solve the problem, the agent attempted to communicate with the reader directly:
+
+## Failed attempt 2
+
+After pointing out that attempt 1 did not solve the problem, the agent attempted to communicate with the reader directly:
 ```
 def _disable_auto_beep_on_reader(reader) -> None:                                 
     """Disable auto-beep at startup via a direct (no-card) connection so th     
